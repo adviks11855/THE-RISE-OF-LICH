@@ -1,0 +1,434 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>THE RISE OF LICH</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Audio & Video Assets -->
+  <audio id="menuAudio" src="Cold_Teeth.mp3" loop preload="none"></audio>
+  <audio id="bgAudio" src="background-music.m4a" loop preload="none"></audio>
+  <audio id="screamAudio" src="lich-scream.m4a" preload="none"></audio>
+  <video id="jumpscareVideo" preload="none" class="hidden"></video>
+
+  <!-- Real-time In-Game Achievement Notification Container -->
+  <div id="achievementNotificationContainer"></div>
+
+  <!-- Psychological HUD -->
+  <div id="hud" class="hidden">
+    <div class="hud-column">
+      <div class="hud-stat">
+        <span class="hud-label">SANITY</span>
+        <div class="bar-container">
+          <div id="sanityBar" class="bar sanity-bar"></div>
+        </div>
+      </div>
+
+      <div class="hud-stat">
+        <span class="hud-label">STAMINA</span>
+        <div class="bar-container">
+          <div id="staminaBar" class="bar stamina-bar"></div>
+        </div>
+      </div>
+
+      <!-- Real-time Madness Timer Tracker -->
+      <div id="madnessTracker" class="hud-stat hidden">
+        <span class="hud-label" style="color: #ef4444;">MADNESS TIMER</span>
+        <span id="madnessTimerDisplay" class="hud-value" style="color: #ef4444; font-weight: bold;">00:00</span>
+      </div>
+    </div>
+
+    <div class="hud-column center-hud">
+      <div class="hud-label">
+        SURVIVE <span id="timerDisplay" class="hud-value">00:00.00</span>
+      </div>
+
+      <div class="hud-label">
+        RITUAL <span id="ritualDisplay" class="hud-value">0 / 5</span>
+      </div>
+    </div>
+
+    <div class="hud-column right-hud">
+      <div class="hud-label">
+        SCORE <span id="scoreDisplay" class="hud-value">0</span>
+      </div>
+
+      <div class="hud-label">
+        COMBO <span id="comboDisplay" class="hud-value">x1</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Visible In-Game Pause Button -->
+  <button id="pauseButton" class="pause-button hidden" aria-label="Pause game">
+    II
+  </button>
+
+  <!-- Center Ritual Interaction Prompt -->
+  <div id="interactionPrompt" class="hidden">
+    HOLD TO PERFORM RITUAL
+    <div class="bar-container prompt-bar">
+      <div id="ritualProgressBar" class="bar ritual-bar"></div>
+    </div>
+  </div>
+
+  <!-- Start Menu -->
+  <div id="startMenu" class="overlay">
+    <div class="song-selector-top-right">
+      <div class="option-group-label">Select Menu Song</div>
+
+      <div class="selector-container">
+        <button class="btn-option btn-song" data-song="Cold_Teeth.mp3">
+          Cold Teeth
+        </button>
+        <button class="btn-option btn-song" data-song="Feel_The_Teeth.mp3">
+          Feel The Heat
+        </button>
+      </div>
+    </div>
+
+    <h1 class="horror-title">LICH Can Bite You</h1>
+
+    <div
+      class="instructions-panel"
+      id="diffDescription"
+      style="margin-bottom: 20px; color: #94a3b8; text-align: center; max-width: 400px;"
+    >
+      EASY: Slow movement. Generous hitboxes.
+    </div>
+
+    <div class="option-group-label">Choose Your Cursor</div>
+
+    <div class="selector-container" id="cursorSelector">
+      <button class="btn-option btn-cursor active" data-cursor="bone">LICH'S BONE</button>
+      <button class="btn-option btn-cursor" data-cursor="blood">BLOOD SIGN</button>
+      <button class="btn-option btn-cursor" data-cursor="blind">INVISIBILITY</button>
+    </div>
+
+    <div class="option-group-label">Difficulty Level</div>
+
+    <div class="selector-container">
+      <button class="btn-option btn-diff active" data-diff="EASY">EASY</button>
+      <button class="btn-option btn-diff" data-diff="NORMAL">NORMAL</button>
+      <button class="btn-option btn-diff" data-diff="HARD">HARD</button>
+      <button class="btn-option btn-diff" data-diff="IMPOSSIBLE">IMPOSSIBLE</button>
+    </div>
+
+    <button id="startBtn" class="btn-horror">
+      ENTER THE DARKNESS
+    </button>
+
+    <button id="achievementsBtn" class="btn-horror btn-horror-secondary">
+      Glory & Achievements
+    </button>
+  </div>
+
+  <!-- Achievements & Statistics Dedicated Overlay Screen -->
+  <div id="achievementsMenu" class="overlay hidden">
+    <div class="achievements-modal">
+      <div class="achievements-header">
+        <h1 class="horror-title" style="margin-bottom: 5px;">ACHIEVEMENTS</h1>
+        <div class="achievements-stats-summary">
+          <span id="achUnlockedCount">0 / 40 UNLOCKED</span>
+          <div class="bar-container ach-main-bar-container">
+            <div id="achMainProgressBar" class="bar sanity-bar" style="width: 0%;"></div>
+          </div>
+          <span id="achCompletionPercent">0% COMPLETE</span>
+        </div>
+
+        <div class="achievements-tabs">
+          <button class="ach-tab-btn active" data-tab="achievements">ACHIEVEMENTS</button>
+          <button class="ach-tab-btn" data-tab="stats">LIFE STATS</button>
+        </div>
+
+        <div id="categoryFilterContainer" class="selector-container" style="margin-top: 10px;">
+          <button class="btn-option ach-cat-btn active" data-cat="ALL">ALL</button>
+          <button class="btn-option ach-cat-btn" data-cat="SURVIVAL">SURVIVAL</button>
+          <button class="btn-option ach-cat-btn" data-cat="RITUAL">RITUAL</button>
+          <button class="btn-option ach-cat-btn" data-cat="COMBAT / EVASION">EVASION</button>
+          <button class="btn-option ach-cat-btn" data-cat="SANITY">SANITY</button>
+          <button class="btn-option ach-cat-btn" data-cat="EXPLORATION">EXPLORATION</button>
+          <button class="btn-option ach-cat-btn" data-cat="SECRET">SECRET</button>
+        </div>
+      </div>
+
+      <!-- Achievements View Panel -->
+      <div id="achievementsListPanel" class="achievements-grid"></div>
+
+      <!-- Lifetime Stats View Panel -->
+      <div id="statsPanel" class="stats-grid hidden">
+        <div class="stat-card">
+          <span class="stat-card-label">TOTAL RUNS</span>
+          <span id="statTotalRuns" class="stat-card-value">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card-label">TOTAL DEATHS</span>
+          <span id="statTotalDeaths" class="stat-card-value">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card-label">LONGEST SURVIVAL</span>
+          <span id="statLongestSurvival" class="stat-card-value">00:00.00</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card-label">TOTAL SURVIVAL</span>
+          <span id="statTotalSurvival" class="stat-card-value">00:00:00</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card-label">TOTAL RITUALS</span>
+          <span id="statTotalRituals" class="stat-card-value">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card-label">TOTAL NEAR MISSES</span>
+          <span id="statTotalNearMisses" class="stat-card-value">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card-label">HIGHEST SCORE</span>
+          <span id="statHighestScore" class="stat-card-value">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card-label">BEST COMBO</span>
+          <span id="statBestCombo" class="stat-card-value">x1</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card-label">HIGHEST PHASE</span>
+          <span id="statHighestPhase" class="stat-card-value">1</span>
+        </div>
+      </div>
+
+      <button id="achievementsCloseBtn" class="btn-horror btn-horror-secondary" style="margin-top: 15px;">
+        BACK
+      </button>
+    </div>
+  </div>
+
+  <!-- Pause Menu -->
+  <div id="pauseMenu" class="overlay hidden">
+    <div class="settings-panel">
+      <h1 class="horror-title">Dont Pause you weakling</h1>
+
+      <div id="pauseMain" class="pause-section">
+        <button id="resumeBtn" class="btn-horror settings-button">
+          LICH Is Waiting...
+        </button>
+
+        <button id="pauseAchBtn" class="btn-horror settings-button">
+          ACHIEVEMENTS
+        </button>
+
+        <button id="audioBtn" class="btn-horror settings-button">
+          AUDIO
+        </button>
+
+        <button id="graphicsBtn" class="btn-horror settings-button">
+          GRAPHICS
+        </button>
+
+        <button id="controlsBtn" class="btn-horror settings-button">
+          CONTROLS
+        </button>
+
+        <button id="quitBtn" class="btn-horror btn-horror-secondary settings-button">
+          YOU DARE TO QUIT?
+        </button>
+      </div>
+
+      <!-- Audio Settings -->
+      <div id="audioPanel" class="settings-subpanel hidden">
+        <h2 class="settings-title">AUDIO</h2>
+
+        <label class="setting-row">
+          <span>MASTER VOLUME</span>
+          <div class="range-wrap">
+            <input id="masterVolume" type="range" min="0" max="100" value="80">
+            <output id="masterVolumeValue">80%</output>
+          </div>
+        </label>
+
+        <label class="setting-row">
+          <span>MUSIC VOLUME</span>
+          <div class="range-wrap">
+            <input id="musicVolume" type="range" min="0" max="100" value="70">
+            <output id="musicVolumeValue">70%</output>
+          </div>
+        </label>
+
+        <label class="setting-row">
+          <span>SFX VOLUME</span>
+          <div class="range-wrap">
+            <input id="sfxVolume" type="range" min="0" max="100" value="100">
+            <output id="sfxVolumeValue">100%</output>
+          </div>
+        </label>
+
+        <label class="setting-row">
+          <span>AMBIENCE</span>
+          <div class="range-wrap">
+            <input id="ambienceVolume" type="range" min="0" max="100" value="80">
+            <output id="ambienceVolumeValue">80%</output>
+          </div>
+        </label>
+
+        <button id="audioBackBtn" class="btn-horror btn-horror-secondary settings-button">
+          BACK
+        </button>
+      </div>
+
+      <!-- Graphics Settings -->
+      <div id="graphicsPanel" class="settings-subpanel hidden">
+        <h2 class="settings-title">GRAPHICS</h2>
+
+        <div class="setting-row setting-row-select">
+          <span>SCREEN SHAKE</span>
+          <button id="screenShakeToggle" class="setting-toggle active" data-value="ON">ON</button>
+        </div>
+
+        <div class="setting-row setting-row-select">
+          <span>GLITCH EFFECTS</span>
+          <button id="glitchEffectsToggle" class="setting-toggle active" data-value="ON">ON</button>
+        </div>
+
+        <div class="setting-row setting-row-select">
+          <span>FLASH EFFECTS</span>
+          <button id="flashEffectsToggle" class="setting-toggle active" data-value="ON">ON</button>
+        </div>
+
+        <div class="setting-row setting-row-select">
+          <span>PARTICLES</span>
+          <div class="choice-group">
+            <button class="graphics-choice" data-setting="particles" data-value="LOW">LOW</button>
+            <button class="graphics-choice" data-setting="particles" data-value="MEDIUM">MEDIUM</button>
+            <button class="graphics-choice active" data-setting="particles" data-value="HIGH">HIGH</button>
+          </div>
+        </div>
+
+        <div class="setting-row setting-row-select">
+          <span>DISTORTION</span>
+          <button id="distortionToggle" class="setting-toggle active" data-value="ON">ON</button>
+        </div>
+
+        <div class="setting-row setting-row-select">
+          <span>REDUCED SCREEN SHAKE</span>
+          <button id="reducedShakeToggle" class="setting-toggle" data-value="OFF">OFF</button>
+        </div>
+
+        <div class="setting-row setting-row-select">
+          <span>REDUCED FLASHES</span>
+          <button id="reducedFlashToggle" class="setting-toggle" data-value="OFF">OFF</button>
+        </div>
+
+        <div class="setting-row setting-row-select">
+          <span>REDUCED DISTORTION</span>
+          <button id="reducedDistortionToggle" class="setting-toggle" data-value="OFF">OFF</button>
+        </div>
+
+        <div class="setting-row setting-row-select">
+          <span>SIMPLIFIED VISUAL EFFECTS</span>
+          <button id="simplifiedEffectsToggle" class="setting-toggle" data-value="OFF">OFF</button>
+        </div>
+
+        <div class="setting-row setting-row-select">
+          <span>CURSOR VISIBILITY</span>
+          <button id="cursorVisibilityToggle" class="setting-toggle active" data-value="ON">ON</button>
+        </div>
+
+        <button id="graphicsBackBtn" class="btn-horror btn-horror-secondary settings-button">
+          BACK
+        </button>
+      </div>
+
+      <!-- Controls -->
+      <div id="controlsPanel" class="settings-subpanel hidden">
+        <h2 class="settings-title">CONTROLS</h2>
+
+        <div class="controls-list">
+          <div class="control-item">
+            <strong>MOVE CURSOR</strong>
+            <span>Move your mouse to navigate.</span>
+          </div>
+
+          <div class="control-item">
+            <strong>PERFORM RITUALS</strong>
+            <span>Hold the cursor over ritual zones.</span>
+          </div>
+
+          <div class="control-item">
+            <strong>ENTER SAFE ZONES</strong>
+            <span>Move into white safe zones to recover.</span>
+          </div>
+
+          <div class="control-item">
+            <strong>AVOID THE LICH</strong>
+            <span>Keep your cursor away from the Lich.</span>
+          </div>
+
+          <div class="control-item">
+            <strong>SURVIVE</strong>
+            <span>Complete all rituals before you are Eaten.</span>
+          </div>
+
+          <div class="control-item">
+            <strong>ESC</strong>
+            <span>Pause / resume the game.</span>
+          </div>
+
+          <div class="control-item">
+            <strong>PAUSE BUTTON</strong>
+            <span>Use the visible II button during gameplay.</span>
+          </div>
+        </div>
+
+        <button id="controlsBackBtn" class="btn-horror btn-horror-secondary settings-button">
+          BACK
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Death Screen -->
+  <div id="deathScreen" class="overlay hidden">
+    <h1 class="horror-title">Your Soul Has Been Eaten</h1>
+
+    <div class="death-stats-container">
+      <div class="hud-label">
+        SURVIVAL:
+        <span id="finalTimeDisplay" class="hud-value">00:00.00</span>
+      </div>
+
+      <div class="hud-label">
+        RITUALS:
+        <span id="finalRitualsDisplay" class="hud-value">0 / 5</span>
+      </div>
+
+      <div class="hud-label">
+        SCORE:
+        <span id="finalScoreDisplay" class="hud-value">0</span>
+      </div>
+
+      <div
+        id="newRecordTag"
+        class="new-record-tag"
+        style="display:none; color:#eab308; margin-top:10px;"
+      >
+        ★ NEW PERSONAL BEST ★
+      </div>
+    </div>
+
+    <div class="button-group" style="margin-top:20px;">
+      <button id="restartBtn" class="btn-horror">
+        TRY AGAIN weakling
+      </button>
+
+      <button id="menuBtn" class="btn-horror btn-horror-secondary">
+        MAIN MENU
+      </button>
+    </div>
+  </div>
+
+  <canvas id="creatureCanvas"></canvas>
+
+  <script src="game.js"></script>
+</body>
+</html>
